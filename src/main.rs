@@ -25,7 +25,7 @@ mod metadata {
 }
 
 fn main() {
-    let mut maze = Maze { ring_gap: 40, rings: 30, initial_divisions: 4, solution: Vec::new() };
+    let mut maze = Maze { ring_gap: 40, rings: 40, initial_divisions: 4, solution: Vec::new() };
     let seed = [11, 13, 15, 2];
     let wall_width = 10;
     let wall_height = 30;

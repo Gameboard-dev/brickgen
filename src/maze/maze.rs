@@ -19,11 +19,8 @@ pub struct Maze {
 impl Maze {
 
     pub fn divisions_in_ring(&self, ring: usize) -> usize {
-        if ring > MAX_RING {
-            FIXED_DIVISIONS
-        } else {
-            self.initial_divisions << (ring >> 1)
-        }
+        let ring = if  ring > MAX_RING {MAX_RING + ring % 2} else {ring};
+        self.initial_divisions << (ring >> 1)
     }
 
     fn open_wall_between(
