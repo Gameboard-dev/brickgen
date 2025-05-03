@@ -2,7 +2,7 @@
 
 A Rust-based procedural generation tool for creating maze-like structures and exporting them as Brickadia save files. This uses various algorithms for maze generation, image processing, and geometric decomposition.
 
-![image](https://github.com/user-attachments/assets/1b1e448d-6e0a-4381-9345-5e50dad952af)
+![image](https://github.com/user-attachments/assets/ba0718da-c417-41ea-a937-eed51f4e1404)
 
 ## Features
 
