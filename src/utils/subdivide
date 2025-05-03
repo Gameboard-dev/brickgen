@@ -1,0 +1,89 @@
+use image::{DynamicImage, GenericImageView, Rgb, RgbImage};
+use std::collections::BTreeMap;
+
+// https://www.researchgate.net/publication/220201925_Tree_Triangular_Coding_Image_Compression_Algorithms
+// https://digital-library.theiet.org/doi/abs/10.1049/iet-ipr.2019.0038
+
+
+// This is going to be an image triangulation algorithm for Brickadia
+
+struct Triangle {
+    vertices: [(u32, u32); 3],
+    color: [u8; 3],
+}
+
+fn load_image(file_path: &str) -> DynamicImage {
+    image::open(file_path).unwrap()
+}
+
+fn calculate_average_color(image: &DynamicImage, vertices: [(u32, u32); 3]) -> ([u8; 3], f64) {
+    let mut total = [0u64; 3];
+    let mut count = 0;
+    let mut variance = 0.0;
+    let mut colors = vec![];
+
+    for y in vertices[0].1..vertices[2].1 {
+        for x in vertices[0].0..vertices[2].0 {
+            if x < image.width() && y < image.height() {
+                let pixel = image.get_pixel(x, y).to_rgb();
+                total[0] += pixel[0] as u64;
+                total[1] += pixel[1] as u64;
+                total[2] += pixel[2] as u64;
+                count += 1;
+                colors.push(pixel);
+            }
+        }
+    }
+
+    let avg = [
+        (total[0] / count) as u8,
+        (total[1] / count) as u8,
+        (total[2] / count) as u8,
+    ];
+
+    for color in colors {
+        variance += ((color[0] as f64 - avg[0] as f64).powi(2)
+            + (color[1] as f64 - avg[1] as f64).powi(2)
+            + (color[2] as f64 - avg[2] as f64).powi(2))
+            / 3.0;
+    }
+    variance /= count as f64;
+
+    (avg, variance.sqrt())
+}
+
+fn split_triangle(triangle: Triangle, image: &DynamicImage, threshold: f64) -> Vec<Triangle> {
+    let mid = (
+        (triangle.vertices[0].0 + triangle.vertices[2].0) / 2,
+        (triangle.vertices[0].1 + triangle.vertices[2].1) / 2,
+    );
+
+    let left_triangle = Triangle {
+        vertices: [triangle.vertices[0], (mid.0, triangle.vertices[0].1), mid],
+        color: [0, 0, 0],
+    };
+
+    let right_triangle = Triangle {
+        vertices: [(mid.0, triangle.vertices[0].1), triangle.vertices[1], mid],
+        color: [0, 0, 0],
+    };
+
+    let left_color = calculate_average_color(
+        image,
+        [left_triangle.vertices[0], left_triangle.vertices[1], left_triangle.vertices[2]],
+    );
+
+    let right_color = calculate_average_color(
+        image,
+        [right_triangle.vertices[0], right_triangle.vertices[1], right_triangle.vertices[2]],
+    );
+
+    let mut result = vec![];
+
+    if left_color.1 > threshold {
+        result.push(Triangle {
+            vertices: left_triangle.vertices,
+            color: left_color.0,
+        })
+    }
+}
