@@ -1,16 +1,13 @@
 use std::any::type_name;
-use std::cmp::max;
 
-use brickadia::save::Brick;
 use image::{ImageBuffer, Rgb, RgbImage};
-use image::imageops::{resize, FilterType}; use imageproc::drawing::{draw_filled_rect_mut, draw_hollow_rect_mut};
+use image::imageops::FilterType; use imageproc::drawing::draw_hollow_rect_mut;
 use imageproc::rect::Rect;
 
-use imageproc::{drawing::{draw_cubic_bezier_curve_mut, draw_filled_circle_mut, draw_line_segment_mut, draw_polygon_mut, draw_filled_rect}, point::Point};
+use imageproc::{drawing::{draw_filled_circle_mut, draw_line_segment_mut, draw_polygon_mut}, point::Point};
 use num_traits::ToPrimitive;
 
 use super::math::bounds;
-use super::walk2d::{compute_edges, rectangular_decomposition};
 
 //use super::polygon::Polygon;
 
@@ -18,14 +15,6 @@ pub const WHITE: Rgb<u8> = Rgb([255, 255, 255]);
 pub const BLACK: Rgb<u8> = Rgb([0, 0, 0]);
 pub const RED: Rgb<u8> = Rgb([255, 0, 0]);
 pub const BLUE: Rgb<u8> = Rgb([0, 0, 255]);
-pub const GREEN: Rgb<u8> = Rgb([0, 255, 0]);
-pub const YELLOW: Rgb<u8> = Rgb([255, 255, 0]);
-pub const CYAN: Rgb<u8> = Rgb([0, 255, 255]);
-pub const MAGENTA: Rgb<u8> = Rgb([255, 0, 255]);
-pub const ORANGE: Rgb<u8> = Rgb([255, 165, 0]);
-pub const PURPLE: Rgb<u8> = Rgb([128, 0, 128]);
-pub const GRAY: Rgb<u8> = Rgb([128, 128, 128]);
-pub const BROWN: Rgb<u8> = Rgb([165, 42, 42]);
 
 
 pub fn in_bounds(image: &RgbImage, (x, y): (i32, i32)) -> bool {
@@ -80,7 +69,7 @@ impl Bitmap {
         &mut self,
         (x0, y0): (T, T),
         (x1, y1): (T, T),
-        rgb: &Rgb<u8>,
+        rgb: Rgb<u8>,
         stroke_width: u32
         ) -> &mut Self {
         let err_msg = &format!("Conversion failed: `{}`", type_name::<T>());
@@ -90,7 +79,7 @@ impl Bitmap {
         let y1 = y1.to_f32().expect(err_msg);
     
         if stroke_width == 1 {
-            draw_line_segment_mut(&mut self.image, (x0, y0), (x1, y1), *rgb);
+            draw_line_segment_mut(&mut self.image, (x0, y0), (x1, y1), rgb);
 
         } else { // Draw diagonal lines of variable stroke_width as filled polygons
             let (dx, dy) = (x1 - x0, y1 - y0);
@@ -115,7 +104,7 @@ impl Bitmap {
                 let p4 = corner(x1, y1, 1.0);
                 
                 // Draw the thick line as a filled convex polygon.
-                draw_polygon_mut(&mut self.image, &[p1, p2, p3, p4], *rgb);
+                draw_polygon_mut(&mut self.image, &[p1, p2, p3, p4], rgb);
             }
         }
         self

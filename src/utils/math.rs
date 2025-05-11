@@ -1,11 +1,13 @@
 use brickadia::util::octree::Point;
+
 use std::ops::{Add, Mul};
 
 pub trait TupleMath<T> {
-    fn add(self, other: (T, T)) -> (T, T);
-    fn mul(self, scalar: T) -> (T, T);
+    fn add(self, other: Self) -> Self;
+    fn mul(self, scalar: T) -> Self;
 }
 
+// Implementation for (T, T)
 impl<T> TupleMath<T> for (T, T)
 where
     T: Copy + Add<Output = T> + Mul<Output = T>,
@@ -18,6 +20,18 @@ where
     }
 }
 
+// Implementation for (T, T, T)
+impl<T> TupleMath<T> for (T, T, T)
+where
+    T: Copy + Add<Output = T> + Mul<Output = T>,
+{
+    fn add(self, other: (T, T, T)) -> (T, T, T) {
+        (self.0 + other.0, self.1 + other.1, self.2 + other.2)
+    }
+    fn mul(self, scalar: T) -> (T, T, T) {
+        (self.0 * scalar, self.1 * scalar, self.2 * scalar)
+    }
+}
 
 /// Finds the bounding box
 pub fn bounds(points: &[(i32, i32)]) -> (Point, Point) {

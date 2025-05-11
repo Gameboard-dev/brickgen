@@ -12,3 +12,16 @@ rayon = "1.8"
 image = { version = "0.25", features = ["rayon"] }
 imageproc = "0.25"
 
+# Bevy & EGUI
+bevy = "0.15.3"
+bevy_egui = "0.33.0"
+bevy_window_utils = "0.15"
+bevy_flycam = "0.15"
+
+# Glam
+glam = "0.29.3"
+
+# Voxelis
+voxelis = "25.4.0"
+
+uuid = "1.12"

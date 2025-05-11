@@ -1,15 +1,15 @@
 
 use rayon::iter::ParallelIterator;
 use brickadia::save::Brick;
-use image::{Rgb, RgbImage};
-use imageproc::{drawing::{draw_filled_rect_mut, draw_hollow_rect_mut}, rect::Rect};
+use image::RgbImage;
+use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
 
 
-use crate::{metadata::assets::BrickAssets, utils::draw::{CYAN, YELLOW}};
+use crate::metadata::assets::BrickAssets;
 
 use super::{
     brick::{bricks_from_shapes, MAX_SIZE}, 
-    draw::{in_bounds, Bitmap, TupleUtils, BLACK, BLUE, GREEN, RED}, 
+    pixels::{in_bounds, Bitmap, TupleUtils, BLACK, BLUE, RED}, 
     math::TupleMath, rectangle::RectUtils
 };
 
@@ -179,7 +179,7 @@ pub fn compute_edges(bitmap: &mut Bitmap) -> (Bitmap, Vec<Vec<(i32, i32)>>) {
         })
         .collect();
 
-    let _ = bitmap_less_edges.save("edges");
+    //let _ = bitmap_less_edges.save("edges");
 
     (bitmap_less_edges, triangles)
 }
@@ -242,16 +242,18 @@ pub fn rectangular_decomposition(bitmap_less_edges: &mut Bitmap) -> Vec<Vec<(i32
         }
     }
 
-    let _ = bitmap_less_edges.save("rectangles");
+    //let _ = bitmap_less_edges.save("rectangles");
 
     rectangles
 
 }
 
 pub fn brick_pixels(mut image: &mut Bitmap, height: u32) -> Vec<Brick> {
-    let bricks: Vec<Brick> = Vec::new();
+
     let (mut bitmap_less_edges, triangles) = compute_edges(&mut image);
+
     let rectangles: Vec<Vec<(i32, i32)>> = rectangular_decomposition(&mut bitmap_less_edges);
+
     let mut bricks: Vec<Brick> = Vec::new();
 
     // Modify `bricks` in place to add microbricks and microwedges
@@ -267,10 +269,10 @@ pub fn brick_pixels(mut image: &mut Bitmap, height: u32) -> Vec<Brick> {
 
 #[cfg(test)]
 mod tests {
-    use brickadia::save::Brick;
-    use image::{DynamicImage, ImageReader, RgbImage};
-    use imageproc::rgb_image;
-    use crate::utils::{brick::save_bricks, draw::Bitmap};
+
+    use image::{DynamicImage, RgbImage};
+
+    use crate::utils::{brick::save_bricks, pixels::Bitmap};
 
     use super::brick_pixels;
 

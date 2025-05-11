@@ -1,18 +1,17 @@
 use std::fs::File;
 
-use brickadia::{save::{Brick, BrickColor, Color, Direction, Rotation, Size}, util::rotation, write::SaveWriter};
+use brickadia::{save::{Brick, BrickColor, Color, Direction, Rotation, Size}, write::SaveWriter};
 use brickadia::util::octree::Point;
-use imageproc::rect::Rect;
 
-use crate::metadata::{assets::BrickAssets, headers};
+use crate::metadata::headers;
 
-use super::{draw::Bitmap, math::bounds, walk2d::{compute_edges, rectangular_decomposition}};
+use super::math::bounds;
 
 pub const BLACK_BRICK: Color = Color { r: 0, b: 0, g: 0, a: 0 };
 
 pub const MAX_SIZE: i32 = 500;
 
-/// calculates an orientation around a vertex
+/// Finds the orientation of a wedge based on the position of the right-angle vertex
 pub fn orientation(
     vertex: (i32, i32), 
     min: Point,
@@ -39,10 +38,6 @@ pub fn bricks_from_shapes(bricks: &mut Vec<Brick>, shapes: Vec<Vec<(i32, i32)>>,
         let length = max.y - min.y;
         let width = max.x - min.x;
 
-        //let concave_vertex = vertices[0];
-        let mut direction;
-        let mut rotation;
-        
         // centre of width in position units is width.
         let pos_x = min.x * 2 + width;
         let pos_y = min.y * 2 + length;   
@@ -56,7 +51,7 @@ pub fn bricks_from_shapes(bricks: &mut Vec<Brick>, shapes: Vec<Vec<(i32, i32)>>,
         };
 
         if let Some(pivot_index) = pivot {
-            (direction, rotation) = orientation(vertices[pivot_index], min, max);
+            let (direction, rotation) = orientation(vertices[pivot_index], min, max);
             brick.direction = direction;
             brick.rotation = rotation;
         }
@@ -64,10 +59,6 @@ pub fn bricks_from_shapes(bricks: &mut Vec<Brick>, shapes: Vec<Vec<(i32, i32)>>,
         bricks.push(brick);
     }
 }
-
-
-
-
 
 
 pub fn save_bricks(bricks: Vec<Brick>, name: &str) {

@@ -70,7 +70,7 @@ mod tests {
     use image::{ImageBuffer, ImageResult, RgbImage};
     use imageproc::drawing::draw_hollow_rect_mut;
 
-    use crate::utils::draw::{BLACK, WHITE};
+    use crate::utils::pixels::{BLACK, WHITE};
 
     use super::*;
 

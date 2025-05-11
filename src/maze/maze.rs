@@ -1,14 +1,13 @@
 use brickadia::save::Brick;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
-use crate::{metadata::assets::BrickAssets, utils::{draw::BLACK, walk2d::brick_pixels}};
-#[allow(unused_imports)]
-use crate::utils::{draw::{Bitmap, BLUE, RED}, math::TupleMath, sfc32::SFC32, walk2d::compute_edges};
+use crate::utils::{pixels::BLACK, walk::brick_pixels};
+
+use crate::utils::{pixels::{Bitmap, RED}, math::TupleMath, sfc32::SFC32};
 use super::cell::Cell;
-use std::collections::VecDeque;
+
 
 const MAX_RING: usize = 9;
-const FIXED_DIVISIONS: usize = 64;
 
 pub struct Maze {
     pub ring_gap: u32,
@@ -37,16 +36,11 @@ impl Maze {
     
         } else {
             // Different rings: Open the inner wall of the outermost ring cell
-            let (outer_ring, outer_division, inner_ring) = if ring_a > ring_b {
-                (ring_a, div_a, ring_b)
+            let (outer_ring, outer_division) = if ring_a > ring_b {
+                (ring_a, div_a)
             } else {
-                (ring_b, div_b, ring_a)
+                (ring_b, div_b)
             };
-    
-            // Map the division index from the outer ring to the inner ring
-            let outer_divisions = self.divisions_in_ring(outer_ring);
-            let inner_divisions = self.divisions_in_ring(inner_ring);
-            let mapped_division = (outer_division * inner_divisions) / outer_divisions;
     
             // Open the inner wall of the corresponding cell in the outer ring
             cells[outer_ring][outer_division].inner_wall = false;
@@ -62,7 +56,6 @@ impl Maze {
     ) -> Vec<(usize, usize)> {
         let mut unvisited = Vec::with_capacity(4);
         let ring_divisions = self.divisions_in_ring(ring);
-        let current_ring_is_odd = ring & 1 == 1;
     
         // Check the next clockwise and anticlockwise neighbors in the same ring
         let clockwise = (division + 1) % ring_divisions;
@@ -192,7 +185,7 @@ impl Maze {
             let point = centre.add(pole.mul(radial_offset)); // CARTESIAN COORDS
 
             if let Some(prev) = prev {
-                bitmap.line(prev, point, &RED, stroke_width);
+                bitmap.line(prev, point, RED, stroke_width);
             }
 
             prev = Some(point);
@@ -282,7 +275,7 @@ impl Maze {
         }
 
         for (begin, end) in lines {
-            bitmap.line(begin, end, &BLACK, wall_width);
+            bitmap.line(begin, end, BLACK, wall_width);
         }
 
         if solve {
